@@ -1,37 +1,46 @@
-import fs from 'fs/promises';
-import path from 'path';
+const fetch = require('node-fetch');
 
-const TOKEN_PATH = path.resolve(process.cwd(), 'blingTokens.json');
+let accessToken = null;
+let refreshToken = process.env.BLING_REFRESH_TOKEN;
+let accessTokenExpiresAt = null;
 
-export async function getValidBlingToken() {
-  const tokenData = JSON.parse(await fs.readFile(TOKEN_PATH, 'utf-8'));
+async function getValidBlingToken() {
   const now = Date.now();
 
-  // Verifica se o token ainda é válido por pelo menos 1 min
-  if (now < tokenData.expires_at - 60000) {
-    return tokenData.access_token;
+  // Se o token ainda for válido, retorna ele
+  if (accessToken && accessTokenExpiresAt && now < accessTokenExpiresAt) {
+    return accessToken;
   }
 
-  // Faz o refresh
+  // Gera novo token usando o refresh_token
   const response = await fetch('https://www.bling.com.br/Api/v3/oauth/token', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
     body: new URLSearchParams({
       grant_type: 'refresh_token',
-      refresh_token: tokenData.refresh_token,
+      refresh_token: refreshToken,
       client_id: process.env.BLING_CLIENT_ID,
-      client_secret: process.env.BLING_CLIENT_SECRET,
-    }),
+      client_secret: process.env.BLING_CLIENT_SECRET
+    })
   });
 
-  const newData = await response.json();
+  const data = await response.json();
 
-  const updatedToken = {
-    access_token: newData.access_token,
-    refresh_token: newData.refresh_token,
-    expires_at: Date.now() + newData.expires_in * 1000,
-  };
+  if (!response.ok) {
+    console.error('Erro ao renovar o token do Bling:', data);
+    throw new Error(data.error_description || 'Erro ao renovar token');
+  }
 
-  await fs.writeFile(TOKEN_PATH, JSON.stringify(updatedToken, null, 2));
-  return updatedToken.access_token;
+  accessToken = data.access_token;
+  refreshToken = data.refresh_token;
+
+  // Define expiração com 90% do tempo de vida para margem de segurança
+  accessTokenExpiresAt = now + (data.expires_in * 1000 * 0.9);
+
+  return accessToken;
 }
+
+module.exports = { getValidBlingToken };
+

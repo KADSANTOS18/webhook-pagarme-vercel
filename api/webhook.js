@@ -44,7 +44,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Basic MzNjMTBlZDZkOWExMDlkNzQ5ZGU3ZDJiM2UyY2VlOGQzYmFiYzY3OToyODI3MDg4ZDg4OTg3OTVhNmM3Y2VhNjNiYWE1NWQ4MDY2NDVlM2FmZTY4NmU4MzZmNjIzNzMzYmQ5Yzc='
+         'Authorization': 'Bearer 3cce17cb554e08d861a0d9d1491ac3910e0fcca7c',
         },
         body: JSON.stringify(pedido)
       });

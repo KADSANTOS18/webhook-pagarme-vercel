@@ -1,4 +1,4 @@
-import { getValidBlingToken } from '../utils/blingAuth.js';
+const { getValidBlingToken } = require('../utils/blingAuth.js');
 
 let accessToken = null;
 let refreshToken = process.env.BLING_REFRESH_TOKEN;

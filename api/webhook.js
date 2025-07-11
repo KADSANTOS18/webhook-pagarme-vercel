@@ -25,4 +25,51 @@ export default async function handler(req, res) {
       numero: "PED-" + body.transaction_id,
       data: new Date().toISOString().slice(0, 10),
       cliente: cliente,
+      itens: [
+        {
+          codigo: body.metadata?.codigo_produto || "PROD001",
+          descricao: body.metadata?.descricao_produto || "Produto Padrão",
+          quantidade: Number(body.metadata?.quantidade) || 1,
+          valor: body.amount / 100
+        }
+      ],
+      formaPagamento: {
+        id: Number(body.metadata?.forma_pagamento_id) || 1
+      },
+      tipoIntegracao: "API"
+    };
+
+    try {
+      const response = await fetch('https://www.bling.com.br/Api/v3/pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic MzNjMTBlZDZkOWExMDlkNzQ5ZGU3ZDJiM2UyY2VlOGQzYmFiYzY3OToyODI3MDg4ZDg4OTg3OTVhNmM3Y2VhNjNiYWE1NWQ4MDY2NDVlM2FmZTY4NmU4MzZmNjIzNzMzYmQ5Yzc='
+        },
+        body: JSON.stringify(pedido)
+      });
+
+      const data = await response.json();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Pedido enviado ao Bling com sucesso.',
+        blingResponse: data
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao enviar para o Bling.',
+        error: error.message
+      });
+    }
+  } else {
+    return res.status(200).json({
+      success: true,
+      message: 'Evento ignorado: ' + body.event
+    });
+  }
+}
+
 

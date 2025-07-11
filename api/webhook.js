@@ -1,4 +1,4 @@
-const { getValidBlingToken } = require('../utils/blingAuth.js');
+import { getValidBlingToken } from '../utils/blingAuth.js';
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {

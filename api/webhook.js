@@ -42,37 +42,6 @@ export default async function handler(req, res) {
     };
 
     try {
-      const response = await fetch('https://www.bling.com.br/Api/v3/pedidos', {
-        method: 'POST',
-        headers: {
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${await getValidBlingToken()}`
-}
-        },
-        body: JSON.stringify(pedido)
-      });
+      const token = await getValidBlingToken();
 
-      const data = await response.json();
-
-      return res.status(200).json({
-        success: true,
-        message: 'Pedido enviado ao Bling com sucesso.',
-        blingResponse: data
-      });
-
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Erro ao enviar para o Bling.',
-        error: error.message
-      });
-    }
-  } else {
-    return res.status(200).json({
-      success: true,
-      message: 'Evento ignorado: ' + body.event
-    });
-  }
-}
-
-
+      const response = await fetch('https://www.bling.c

@@ -1,5 +1,6 @@
+import { getValidBlingToken } from '../utils/blingAuth.js';
+
 export default async function handler(req, res) {
-  import { getValidBlingToken } from '../utils/blingAuth.js';
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -44,8 +45,9 @@ export default async function handler(req, res) {
       const response = await fetch('https://www.bling.com.br/Api/v3/pedidos', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-         'Authorization': 'Bearer 3cce17cb554e08d861a0d9d1491ac3910e0fcca7c',
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${await getValidBlingToken()}`
+}
         },
         body: JSON.stringify(pedido)
       });
